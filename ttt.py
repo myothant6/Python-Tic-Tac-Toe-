@@ -20,41 +20,52 @@ def print_board():
     print(f' {board[6]} | {board[7]} | {board[8]} ')
 
 
-def minmax(maximize, depth):
+def minmax(maximize, depth, alpha, beta):
     result = win()
     if result == computer: return 10 - depth
     elif result == human: return depth - 10
     elif draw(): return 0
-    elif depth == 100: return 0
+    #elif depth == 100: return 0
 
     if maximize:
-        best_score = -100
+        best_score = float('-inf')
+
         for i in range(9):
             if board[i] == ' ':
                 board[i] = computer
-                score = minmax(False, depth + 1)
+                score = minmax(False, depth + 1, alpha, beta)
                 board[i] = ' '
                 best_score = max(score, best_score)
+                alpha = max(alpha, best_score)
+
+                if beta <= alpha:
+                    break
+
         return best_score
     else:
-        best_score = 100
+        best_score = float('inf')
         for i in range(9):
             if board[i] == ' ':
                 board[i] = human
-                score = minmax(True, depth + 1)
+                score = minmax(True, depth + 1, alpha, beta)
                 board[i] = ' '
                 best_score = min(score, best_score)
+                beta = min(beta, best_score)
+
+                if beta <= alpha:
+                    break
+
         return best_score
 
 
 def computer_move():
     available_position = [i for i in range(9) if board[i] == ' ']
-    best_score = -100
+    best_score = float('-inf')
     best_moves = []
 
     for i in available_position:
         board[i] = computer
-        score = minmax(False, 0)
+        score = minmax(False, 0, float('-inf'), float('inf'))
         board[i] = ' '
 
         if score > best_score:
@@ -102,7 +113,7 @@ def win():
             return human
         if all(board[i] == computer for i in w):
             return computer
-    return False
+    return None
 
 
 def main():
